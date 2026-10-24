@@ -45,7 +45,7 @@ export class MinimumNetworkStack extends cdk.Stack {
       return igw;
     })();
 
-    const webServerSubnetAndRouteTable = ((): {
+    const webServerSubnet = ((): {
       subnet: cdk.aws_ec2.CfnSubnet;
       routeTable: cdk.aws_ec2.CfnRouteTable;
     } => {
@@ -126,7 +126,7 @@ export class MinimumNetworkStack extends cdk.Stack {
         networkInterfaces: [
           {
             deviceIndex: "0",
-            subnetId: webServerSubnetAndRouteTable.subnet.ref,
+            subnetId: webServerSubnet.subnet.ref,
             // MEMO: x.x.x.0~x.x.x.3は予約されている
             privateIpAddress: "10.0.0.10" satisfies IpV4,
             associatePublicIpAddress: true,
@@ -160,14 +160,14 @@ export class MinimumNetworkStack extends cdk.Stack {
       const eip = new cdk.aws_ec2.CfnEIP(this, `${natGatewayId}-eip`);
 
       const natGateway = new cdk.aws_ec2.CfnNatGateway(this, natGatewayId, {
-        subnetId: webServerSubnetAndRouteTable.subnet.ref,
+        subnetId: webServerSubnet.subnet.ref,
         allocationId: eip.attrAllocationId,
       });
 
       return natGateway;
     })();
 
-    const dbServerSubnetAndRouteTable = ((): {
+    const dbServerSubnet = ((): {
       subnet: cdk.aws_ec2.CfnSubnet;
       routeTable: cdk.aws_ec2.CfnRouteTable;
     } => {
@@ -248,7 +248,7 @@ export class MinimumNetworkStack extends cdk.Stack {
         networkInterfaces: [
           {
             deviceIndex: "0",
-            subnetId: dbServerSubnetAndRouteTable.subnet.ref,
+            subnetId: dbServerSubnet.subnet.ref,
             privateIpAddress: "10.0.1.10" satisfies IpV4,
             groupSet: [dbServerSecurityGroup.ref],
           },
